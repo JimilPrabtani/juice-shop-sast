@@ -2,33 +2,36 @@ name: OpenGrep pipeline
 
 on:
     push:
-        branches: [ main ]
+        branches: [ master ]
     pull_request:
-        branches: [ main ]
+        branches: [ master ]
 
 permissions:
     contents: read
     security-events: write
 
 jobs:
-    semgrep:
+    opengrep:
         runs-on: ubuntu-latest
         steps:
             - name: Check out code
               uses: actions/checkout@v4
-            - name: Set up Python
-              uses: actions/setup-python@v5
+
+            - name: setup python
+              uses: actions/setup-python@v4
               with:
-                  python-version: "3.x"
-            - name: Run opengrep
+                python-version: "3.x"
+                
+            - name: Run OpenGrep
               uses: jonjozwiak/opengrep-action@v1
               with:
-                  paths: "src app lib"
+                  config: "auto"
+                  paths: "."
                   output-format: "sarif"
                   output-file: "opengrep.sarif"
                   severity: "WARNING"
             - name: Upload SARIF to GitHub Advanced Security
-              uses: github/codeql-action/upload-sarif@v3
+              uses: github/codeql-action/upload-sarif@v4
               if: always()
               with:
                 sarif_file: opengrep.sarif
